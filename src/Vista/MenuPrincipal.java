@@ -20,7 +20,6 @@ public class MenuPrincipal extends JFrame {
     private static final String MODULO_DONACIONES = "Gestion de donaciones";
     private static final String MODULO_INVENTARIO = "Consulta de inventario";
     private static final String MODULO_ENTREGAS = "Gestion de entregas";
-    private static final String MODULO_REPORTES = "Generacion de reportes";
     private static final String MODULO_BENEFICIARIOS = "Gestion de beneficiarios";
     private static final String MODULO_USUARIOS = "Gestion de usuarios";
 
@@ -95,7 +94,6 @@ public class MenuPrincipal extends JFrame {
         agregarBotonSiTienePermiso(panel, MODULO_DONACIONES);
         agregarBotonSiTienePermiso(panel, MODULO_INVENTARIO);
         agregarBotonSiTienePermiso(panel, MODULO_ENTREGAS);
-        agregarBotonSiTienePermiso(panel, MODULO_REPORTES);
         agregarBotonSiTienePermiso(panel, MODULO_BENEFICIARIOS);
         agregarBotonSiTienePermiso(panel, MODULO_USUARIOS);
 
@@ -178,8 +176,6 @@ public class MenuPrincipal extends JFrame {
             panelModulo = new ConsultaInventario();
         } else if (modulo.equals(MODULO_ENTREGAS)) {
             panelModulo = new GestionEntregas();
-        } else if (modulo.equals(MODULO_REPORTES)) {
-            panelModulo = new GeneracionReportes();
         } 
 
         pestañas.addTab(modulo, panelModulo);
