@@ -22,7 +22,6 @@ public class MenuPrincipal extends JFrame {
     private static final String MODULO_ENTREGAS = "Gestion de entregas";
     private static final String MODULO_REPORTES = "Generacion de reportes";
     private static final String MODULO_BENEFICIARIOS = "Gestion de beneficiarios";
-    private static final String MODULO_HISTORIAL = "Consulta de historial de entregas";
     private static final String MODULO_REPORTE_DONACIONES = "Reporte de donaciones recibidas";
     private static final String MODULO_USUARIOS = "Gestion de usuarios";
 
@@ -99,7 +98,6 @@ public class MenuPrincipal extends JFrame {
         agregarBotonSiTienePermiso(panel, MODULO_ENTREGAS);
         agregarBotonSiTienePermiso(panel, MODULO_REPORTES);
         agregarBotonSiTienePermiso(panel, MODULO_BENEFICIARIOS);
-        agregarBotonSiTienePermiso(panel, MODULO_HISTORIAL);
         agregarBotonSiTienePermiso(panel, MODULO_REPORTE_DONACIONES);
         agregarBotonSiTienePermiso(panel, MODULO_USUARIOS);
 
@@ -159,7 +157,6 @@ public class MenuPrincipal extends JFrame {
 
         if (tipo.equals("donador")) {
             return modulo.equals(MODULO_REPORTES)
-                    || modulo.equals(MODULO_HISTORIAL)
                     || modulo.equals(MODULO_REPORTE_DONACIONES);
         }
 
@@ -185,8 +182,6 @@ public class MenuPrincipal extends JFrame {
             panelModulo = new ConsultaInventario();
         } else if (modulo.equals(MODULO_ENTREGAS)) {
             panelModulo = new GestionEntregas();
-        } else if (modulo.equals(MODULO_HISTORIAL)) {
-            panelModulo = new HistorialEntregas();
         } else if (modulo.equals(MODULO_REPORTE_DONACIONES)) {
             panelModulo = new ReporteDonacionesRecibidas();
         } else if (modulo.equals(MODULO_REPORTES)) {
