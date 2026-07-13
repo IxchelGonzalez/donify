@@ -26,7 +26,7 @@ public class MenuPrincipal extends JFrame {
     private Usuario usuarioSesion;
 
     private JPanel panelMenu;
-    private JTabbedPane pestañas;
+    private JPanel panelContenido;
 
     public MenuPrincipal(Usuario usuarioSesion) {
         this.usuarioSesion = usuarioSesion;
@@ -50,8 +50,8 @@ public class MenuPrincipal extends JFrame {
         panelMenu.setBackground(new Color(35, 75, 120));
         panelMenu.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
 
-        pestañas = new JTabbedPane();
-        pestañas.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        panelContenido = new JPanel(new BorderLayout());
+        panelContenido.setBackground(Color.WHITE);
     }
 
     private void agregarComponentes() {
@@ -60,7 +60,8 @@ public class MenuPrincipal extends JFrame {
         panelMenu.add(crearPanelCerrarSesion(), BorderLayout.SOUTH);
 
         add(panelMenu, BorderLayout.WEST);
-        add(pestañas, BorderLayout.CENTER);
+         add(panelMenu, BorderLayout.WEST);
+        add(panelContenido, BorderLayout.CENTER);
     }
 
     private JPanel crearPanelUsuario() {
@@ -159,11 +160,6 @@ public class MenuPrincipal extends JFrame {
 
     private void abrirModulo(String modulo) {
 
-        if (existePestaña(modulo)) {
-            seleccionarPestaña(modulo);
-            return;
-        }
-
         JPanel panelModulo = new JPanel();
 
         if (modulo.equals(MODULO_USUARIOS)) {
@@ -176,29 +172,13 @@ public class MenuPrincipal extends JFrame {
             panelModulo = new ConsultaInventario();
         } else if (modulo.equals(MODULO_ENTREGAS)) {
             panelModulo = new GestionEntregas();
-        } 
-
-        pestañas.addTab(modulo, panelModulo);
-        pestañas.setSelectedComponent(panelModulo);
-    }
-
-    private boolean existePestaña(String titulo) {
-        for (int i = 0; i < pestañas.getTabCount(); i++) {
-            if (pestañas.getTitleAt(i).equals(titulo)) {
-                return true;
-            }
         }
-        return false;
+
+        panelMenu.add(panelModulo);
+        panelContenido.removeAll();
+        panelContenido.add(panelModulo, BorderLayout.CENTER);
+        panelContenido.revalidate();
+        panelContenido.repaint();
     }
 
-    private void seleccionarPestaña(String titulo) {
-        for (int i = 0; i < pestañas.getTabCount(); i++) {
-            if (pestañas.getTitleAt(i).equals(titulo)) {
-                pestañas.setSelectedIndex(i);
-                return;
-            }
-        }
-    }
 }
-
-
