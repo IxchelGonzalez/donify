@@ -1,3 +1,4 @@
+//clase de conecion a la base para usuarios 
 package DAO;
 
 import Conexion.ConexionBD;
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioDAO {
-
+ //metodo que nos permite crear usuarios
     public boolean crearUsuario(Usuario usuario) {
         String sql = "INSERT INTO Usuarios(usuario, contrasena, curp, tipo_usuario) VALUES (?, ?, ?, ?)";
 
@@ -26,7 +27,7 @@ public class UsuarioDAO {
             return false;
         }
     }
-
+ //metodo que nos permite obtener usuarios 
     public List<Usuario> obtenerUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
         String sql = "SELECT id_usuario, usuario, contrasena, curp, tipo_usuario FROM Usuarios";
@@ -51,7 +52,7 @@ public class UsuarioDAO {
 
         return usuarios;
     }
-
+ //metodo que nos permite actualizar usuarios 
     public boolean actualizarUsuario(Usuario usuario) {
         String sql = "UPDATE Usuarios SET usuario = ?, contrasena = ?, curp = ?, tipo_usuario = ? WHERE id_usuario = ?";
 
@@ -71,7 +72,8 @@ public class UsuarioDAO {
             return false;
         }
     }
-
+    
+    //metodo que nos permite eliminar un usuario 
     public boolean eliminarUsuario(int idUsuario) {
         String sql = "DELETE FROM Usuarios WHERE id_usuario = ?";
 
@@ -87,6 +89,7 @@ public class UsuarioDAO {
         }
     }
 
+    //metodo que corrobora si existe el usuario en la base de datos
     public boolean existeUsuario(String usuario) {
         String sql = "SELECT id_usuario FROM Usuarios WHERE usuario = ?";
 
@@ -104,6 +107,7 @@ public class UsuarioDAO {
         }
     }
 
+    //metodo que corrobora si la curp existe en la base de datos 
     public boolean existeCurp(String curp) {
         String sql = "SELECT id_usuario FROM Usuarios WHERE curp = ?";
 

@@ -1,3 +1,4 @@
+//Realiza la conexion a la base de datos generada en workbench
 package Conexion;
 import java.sql.Connection;
 import java.sql.DriverManager;

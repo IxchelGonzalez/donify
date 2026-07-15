@@ -1,3 +1,4 @@
+//realiza la conexion a la base de datos para el inventario 
 package DAO;
 
 import Conexion.ConexionBD;
@@ -11,6 +12,7 @@ import java.util.List;
 
 public class InventarioDAO {
 
+    //metodo de conexion a la base para obtener el inventario 
     public List<Prenda> obtenerInventario() {
         List<Prenda> inventario = new ArrayList<>();
         String sql = "SELECT id_prenda, tipo_prenda, estado_prenda, stock FROM Prendas";

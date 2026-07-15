@@ -1,3 +1,4 @@
+//Realiza la conexion a la base de datos entregas 
 package DAO;
 
 import Conexion.ConexionBD;
@@ -15,8 +16,11 @@ import java.util.List;
 
 public class EntregaDAO {
 
+    //metodo para obtener una lista de beneficiarios 
     public List<Beneficiario> obtenerBeneficiarios() {
+        //crea una lista para beneficiarios con arrays 
         List<Beneficiario> beneficiarios = new ArrayList<>();
+        //codigo en sql para seleccionar los datos de lso beneficiarios 
         String sql = "SELECT id_beneficiario, nombre, sexo, fecha_ultima_recepcion FROM Beneficiarios";
 
         try (Connection con = ConexionBD.conectar();
@@ -38,8 +42,9 @@ public class EntregaDAO {
 
         return beneficiarios;
     }
-
+    //metodo para obetenr las asociaciones 
     public List<Asociacion> obtenerAsociaciones() {
+        //usando array crea una lista de las asociaciones 
         List<Asociacion> asociaciones = new ArrayList<>();
         String sql = "SELECT id_asociacion, nombre, ubicacion, verificacion FROM Asociaciones";
 
@@ -63,6 +68,7 @@ public class EntregaDAO {
         return asociaciones;
     }
 
+    //metodo para obtener el stock de las prendas 
     public List<Prenda> obtenerPrendasConStock() {
         List<Prenda> prendas = new ArrayList<>();
         String sql = "SELECT id_prenda, tipo_prenda, estado_prenda, stock FROM Prendas WHERE stock > 0";
@@ -86,7 +92,8 @@ public class EntregaDAO {
 
         return prendas;
     }
-
+ 
+    //registrar entrega completa validando el stock y usando las tablas entrega detalle, eliminacion del stock entregado y actualizar al beneficiario 
     public boolean registrarEntregaCompleta(int idBeneficiario, int idAsociacion, Date fechaEntrega,
                                             int idPrenda, int cantidad) {
         Connection con = null;

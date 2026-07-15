@@ -1,3 +1,4 @@
+//clase que conecta a la base para el login 
 package DAO;
 
 import Conexion.ConexionBD;
@@ -8,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class LoginDAO {
-
+ //metodo para obetenr a los usuarios por medio de sus credenciales 
     public Usuario obtenerUsuarioPorCredenciales(String usuario, String contrasena) {
         String sql = "SELECT id_usuario, usuario, contrasena, curp, tipo_usuario "
                    + "FROM Usuarios WHERE usuario = ? AND contrasena = ?";
