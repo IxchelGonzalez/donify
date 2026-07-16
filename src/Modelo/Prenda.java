@@ -7,6 +7,7 @@ public class Prenda {
     private String estadoPrenda;
     private int stock;
 
+    //constructor
     public Prenda() {
     }
 
@@ -17,6 +18,7 @@ public class Prenda {
         this.stock = stock;
     }
 
+    //getters y setters 
     public int getIdPrenda() {
         return idPrenda;
     }

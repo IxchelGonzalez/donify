@@ -7,6 +7,7 @@ public class EntregaDetalle {
     private int idPrenda;
     private int cantidad;
 
+    //constructor
     public EntregaDetalle() {
     }
 
@@ -23,6 +24,7 @@ public class EntregaDetalle {
         this.cantidad = cantidad;
     }
 
+    //getters y setters
     public int getIdEntregaDetalle() {
         return idEntregaDetalle;
     }

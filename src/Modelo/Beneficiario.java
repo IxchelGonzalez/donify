@@ -11,7 +11,8 @@ public class Beneficiario {
 
     public Beneficiario() {
     }
-
+ 
+    //constructor
     public Beneficiario(int idBeneficiario, String nombre, String sexo, Date fechaUltimaRecepcion) {
         this.idBeneficiario = idBeneficiario;
         this.nombre = nombre;
@@ -19,6 +20,7 @@ public class Beneficiario {
         this.fechaUltimaRecepcion = fechaUltimaRecepcion;
     }
 
+    //getters y setters 
     public Beneficiario(String nombre, String sexo, Date fechaUltimaRecepcion) {
         this.nombre = nombre;
         this.sexo = sexo;

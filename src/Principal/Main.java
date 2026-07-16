@@ -1,3 +1,4 @@
+//clase principal 
 package Principal;
 
 import Vista.Login;

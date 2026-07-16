@@ -10,6 +10,7 @@ public class DonacionDetalle {
     public DonacionDetalle() {
     }
 
+    //constructor
     public DonacionDetalle(int idDonacionDetalle, int idDonacionIngreso, int idPrenda, int cantidad) {
         this.idDonacionDetalle = idDonacionDetalle;
         this.idDonacionIngreso = idDonacionIngreso;
@@ -23,6 +24,7 @@ public class DonacionDetalle {
         this.cantidad = cantidad;
     }
 
+    //getters y setters 
     public int getIdDonacionDetalle() {
         return idDonacionDetalle;
     }

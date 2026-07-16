@@ -9,6 +9,7 @@ public class EntregaSalida {
     private int idAsociacion;
     private Date fechaEntrega;
 
+    //constructor
     public EntregaSalida() {
     }
 
@@ -25,6 +26,7 @@ public class EntregaSalida {
         this.fechaEntrega = fechaEntrega;
     }
 
+    //getters y setters 
     public int getIdEntregaSalida() {
         return idEntregaSalida;
     }

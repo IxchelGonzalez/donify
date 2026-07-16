@@ -7,6 +7,7 @@ public class Donador {
     private String correo;
     private String telefono;
 
+    //constructor
     public Donador() {
     }
 
@@ -23,6 +24,7 @@ public class Donador {
         this.telefono = telefono;
     }
 
+    //getters y setters 
     public int getIdDonador() {
         return idDonador;
     }

@@ -8,6 +8,7 @@ public class Usuario {
     private String curp;
     private String tipoUsuario;
 
+    //constructor 
     public Usuario() {
     }
 
@@ -26,6 +27,7 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
+    //getters y setters 
     public int getIdUsuario() {
         return idUsuario;
     }

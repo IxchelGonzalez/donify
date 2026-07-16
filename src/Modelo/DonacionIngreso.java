@@ -9,6 +9,7 @@ public class DonacionIngreso {
     private int idAsociacion;
     private Date fechaDonacion;
 
+    //constructor
     public DonacionIngreso() {
     }
 
@@ -25,6 +26,7 @@ public class DonacionIngreso {
         this.fechaDonacion = fechaDonacion;
     }
 
+    //getters y setters 
     public int getIdDonacionIngreso() {
         return idDonacionIngreso;
     }

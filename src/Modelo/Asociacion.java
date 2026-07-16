@@ -10,6 +10,7 @@ public class Asociacion {
     public Asociacion() {
     }
 
+    //constructor
     public Asociacion(int idAsociacion, String nombre, String ubicacion, boolean verificacion) {
         this.idAsociacion = idAsociacion;
         this.nombre = nombre;
@@ -17,6 +18,7 @@ public class Asociacion {
         this.verificacion = verificacion;
     }
 
+    //getters y setters 
     public int getIdAsociacion() {
         return idAsociacion;
     }
