@@ -1,5 +1,6 @@
 package Vista;
 
+import DAO.AsociacionDAO;
 import DAO.UsuarioDAO;
 import Modelo.Usuario;
 import java.awt.BorderLayout;
@@ -37,6 +38,7 @@ public class GestionUsuarios extends JPanel {
     private static final String VISTA_ELIMINAR = "eliminar";
 
     private final UsuarioDAO usuarioDAO;
+    private final AsociacionDAO asociacionDAO;
 
     private CardLayout cardLayout;
     private JPanel panelContenido;
@@ -51,6 +53,8 @@ public class GestionUsuarios extends JPanel {
     private JPasswordField txtCrearConfirmarContrasena;
     private JTextField txtCrearCurp;
     private JComboBox<String> cmbCrearTipo;
+    private JLabel lblCrearInstitucion;
+    private JTextField txtCrearInstitucion;
     private JButton btnCrearUsuario;
     private JButton btnCerrarCrear;
 
@@ -70,6 +74,8 @@ public class GestionUsuarios extends JPanel {
     private JPasswordField txtActualizarConfirmarContrasena;
     private JTextField txtActualizarCurp;
     private JComboBox<String> cmbActualizarTipo;
+    private JLabel lblActualizarInstitucion;
+    private JTextField txtActualizarInstitucion;
     private JButton btnActualizarUsuario;
     private JButton btnCerrarActualizar;
 
@@ -78,9 +84,12 @@ public class GestionUsuarios extends JPanel {
 
     private String usuarioOriginal;
     private String curpOriginal;
+    private int idAsociacionOriginal;
+    private List<Usuario> listaActualizarUsuarios;
 
     public GestionUsuarios() {
         usuarioDAO = new UsuarioDAO();
+        asociacionDAO = new AsociacionDAO();
         configurarPanel();
         crearComponentes();
         agregarComponentes();
@@ -182,6 +191,10 @@ public class GestionUsuarios extends JPanel {
         txtCrearConfirmarContrasena = crearCampoPassword();
         txtCrearCurp = crearCampoTexto();
         cmbCrearTipo = crearComboTipoUsuario();
+        lblCrearInstitucion = new JLabel("Nombre de la institución");
+        lblCrearInstitucion.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        lblCrearInstitucion.setForeground(new Color(60, 60, 60));
+        txtCrearInstitucion = crearCampoTexto();
 
         JPanel formulario = crearFormulario();
         agregarFilaFormulario(formulario, 0, "Usuario", txtCrearUsuario);
@@ -189,11 +202,20 @@ public class GestionUsuarios extends JPanel {
         agregarFilaFormulario(formulario, 2, "Confirmar contraseña", txtCrearConfirmarContrasena);
         agregarFilaFormulario(formulario, 3, "CURP", txtCrearCurp);
         agregarFilaFormulario(formulario, 4, "Tipo de usuario", cmbCrearTipo);
+        agregarFilaFormulario(formulario, 5, lblCrearInstitucion, txtCrearInstitucion);
+
+        cmbCrearTipo.addActionListener(e -> actualizarVisibilidadInstitucion(
+                cmbCrearTipo, lblCrearInstitucion, txtCrearInstitucion));
+        actualizarVisibilidadInstitucion(cmbCrearTipo, lblCrearInstitucion, txtCrearInstitucion);
 
         btnCrearUsuario = crearBoton("Crear usuario", new Color(40, 120, 210), Color.WHITE);
         btnCerrarCrear = crearBoton("Cerrar", new Color(220, 224, 230), new Color(50, 50, 50));
 
-        panel.add(formulario, BorderLayout.CENTER);
+        JScrollPane scrollFormulario = new JScrollPane(formulario);
+        scrollFormulario.setBorder(BorderFactory.createEmptyBorder());
+        scrollFormulario.getVerticalScrollBar().setUnitIncrement(16);
+
+        panel.add(scrollFormulario, BorderLayout.CENTER);
         panel.add(crearPanelBotones(btnCrearUsuario, btnCerrarCrear), BorderLayout.SOUTH);
 
         return panel;
@@ -244,6 +266,10 @@ public class GestionUsuarios extends JPanel {
         txtActualizarConfirmarContrasena = crearCampoPassword();
         txtActualizarCurp = crearCampoTexto();
         cmbActualizarTipo = crearComboTipoUsuario();
+        lblActualizarInstitucion = new JLabel("Nombre de la institución");
+        lblActualizarInstitucion.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        lblActualizarInstitucion.setForeground(new Color(60, 60, 60));
+        txtActualizarInstitucion = crearCampoTexto();
 
         JPanel formulario = crearFormulario();
         agregarFilaFormulario(formulario, 0, "ID", txtActualizarId);
@@ -252,16 +278,26 @@ public class GestionUsuarios extends JPanel {
         agregarFilaFormulario(formulario, 3, "Confirmar contraseña", txtActualizarConfirmarContrasena);
         agregarFilaFormulario(formulario, 4, "CURP", txtActualizarCurp);
         agregarFilaFormulario(formulario, 5, "Tipo de usuario", cmbActualizarTipo);
+        agregarFilaFormulario(formulario, 6, lblActualizarInstitucion, txtActualizarInstitucion);
+
+        cmbActualizarTipo.addActionListener(e -> actualizarVisibilidadInstitucion(
+                cmbActualizarTipo, lblActualizarInstitucion, txtActualizarInstitucion));
+        actualizarVisibilidadInstitucion(cmbActualizarTipo, lblActualizarInstitucion, txtActualizarInstitucion);
 
         JPanel centro = new JPanel(new BorderLayout(0, 15));
         centro.setBackground(new Color(245, 247, 250));
         centro.add(scroll, BorderLayout.NORTH);
         centro.add(formulario, BorderLayout.CENTER);
 
+        JScrollPane scrollCentro = new JScrollPane(centro);
+        scrollCentro.setBorder(BorderFactory.createEmptyBorder());
+        scrollCentro.getVerticalScrollBar().setUnitIncrement(16);
+        scrollCentro.getViewport().setBackground(new Color(245, 247, 250));
+
         btnActualizarUsuario = crearBoton("Actualizar usuario", new Color(230, 150, 55), Color.WHITE);
         btnCerrarActualizar = crearBoton("Cerrar", new Color(220, 224, 230), new Color(50, 50, 50));
 
-        panel.add(centro, BorderLayout.CENTER);
+        panel.add(scrollCentro, BorderLayout.CENTER);
         panel.add(crearPanelBotones(btnActualizarUsuario, btnCerrarActualizar), BorderLayout.SOUTH);
 
         return panel;
@@ -294,8 +330,14 @@ public class GestionUsuarios extends JPanel {
         String confirmarContrasena = new String(txtCrearConfirmarContrasena.getPassword());
         String curp = txtCrearCurp.getText().trim().toUpperCase();
         String tipoUsuario = obtenerTipoUsuario(cmbCrearTipo);
+        String nombreInstitucion = txtCrearInstitucion.getText().trim();
 
         if (!validarCampos(usuario, contrasena, confirmarContrasena, curp)) {
+            return;
+        }
+
+        if ("institucion".equals(tipoUsuario) && nombreInstitucion.isEmpty()) {
+            mostrarAdvertencia("Debe indicar el nombre de la institución.");
             return;
         }
 
@@ -309,7 +351,23 @@ public class GestionUsuarios extends JPanel {
             return;
         }
 
-        Usuario nuevoUsuario = new Usuario(usuario, contrasena, curp, tipoUsuario);
+        int idAsociacion = 0;
+
+        if ("institucion".equals(tipoUsuario)) {
+            if (asociacionDAO.existeNombreAsociacion(nombreInstitucion)) {
+                mostrarAdvertencia("Ya existe una institución registrada con ese nombre.");
+                return;
+            }
+
+            idAsociacion = asociacionDAO.crearAsociacion(nombreInstitucion);
+
+            if (idAsociacion == 0) {
+                mostrarError("No se pudo registrar la institución.");
+                return;
+            }
+        }
+
+        Usuario nuevoUsuario = new Usuario(usuario, contrasena, curp, tipoUsuario, idAsociacion);
 
         if (usuarioDAO.crearUsuario(nuevoUsuario)) {
             JOptionPane.showMessageDialog(this, "Usuario creado correctamente.");
@@ -331,8 +389,14 @@ public class GestionUsuarios extends JPanel {
         String confirmarContrasena = new String(txtActualizarConfirmarContrasena.getPassword());
         String curp = txtActualizarCurp.getText().trim().toUpperCase();
         String tipoUsuario = obtenerTipoUsuario(cmbActualizarTipo);
+        String nombreInstitucion = txtActualizarInstitucion.getText().trim();
 
         if (!validarCampos(usuario, contrasena, confirmarContrasena, curp)) {
+            return;
+        }
+
+        if ("institucion".equals(tipoUsuario) && nombreInstitucion.isEmpty()) {
+            mostrarAdvertencia("Debe indicar el nombre de la institución.");
             return;
         }
 
@@ -346,7 +410,23 @@ public class GestionUsuarios extends JPanel {
             return;
         }
 
-        Usuario usuarioActualizado = new Usuario(idUsuario, usuario, contrasena, curp, tipoUsuario);
+        int idAsociacion = 0;
+
+        if ("institucion".equals(tipoUsuario)) {
+            if (idAsociacionOriginal > 0) {
+                idAsociacion = idAsociacionOriginal;
+                asociacionDAO.actualizarNombreAsociacion(idAsociacion, nombreInstitucion);
+            } else {
+                idAsociacion = asociacionDAO.crearAsociacion(nombreInstitucion);
+
+                if (idAsociacion == 0) {
+                    mostrarError("No se pudo registrar la institución.");
+                    return;
+                }
+            }
+        }
+
+        Usuario usuarioActualizado = new Usuario(idUsuario, usuario, contrasena, curp, tipoUsuario, idAsociacion);
 
         if (usuarioDAO.actualizarUsuario(usuarioActualizado)) {
             JOptionPane.showMessageDialog(this, "Usuario actualizado correctamente.");
@@ -425,11 +505,42 @@ public class GestionUsuarios extends JPanel {
 
         usuarioOriginal = txtActualizarUsuario.getText();
         curpOriginal = txtActualizarCurp.getText();
+
+        idAsociacionOriginal = 0;
+        txtActualizarInstitucion.setText("");
+
+        int idUsuario = (int) modeloActualizar.getValueAt(filaModelo, 0);
+
+        if (listaActualizarUsuarios != null) {
+            for (Usuario usuario : listaActualizarUsuarios) {
+                if (usuario.getIdUsuario() == idUsuario) {
+                    idAsociacionOriginal = usuario.getIdAsociacion();
+                    break;
+                }
+            }
+        }
+
+        if (idAsociacionOriginal > 0) {
+            for (Modelo.Asociacion asociacion : asociacionDAO.obtenerAsociaciones()) {
+                if (asociacion.getIdAsociacion() == idAsociacionOriginal) {
+                    txtActualizarInstitucion.setText(asociacion.getNombre());
+                    break;
+                }
+            }
+        }
+
+        boolean esInstitucion = "Institucion".equals(cmbActualizarTipo.getSelectedItem());
+        lblActualizarInstitucion.setVisible(esInstitucion);
+        txtActualizarInstitucion.setVisible(esInstitucion);
     }
 
     private void cargarTabla(DefaultTableModel modelo) {
         modelo.setRowCount(0);
         List<Usuario> usuarios = usuarioDAO.obtenerUsuarios();
+
+        if (modelo == modeloActualizar) {
+            listaActualizarUsuarios = usuarios;
+        }
 
         for (Usuario usuario : usuarios) {
             if (modelo.getColumnCount() == 5) {
@@ -483,12 +594,29 @@ public class GestionUsuarios extends JPanel {
         txtActualizarConfirmarContrasena.setText("");
         txtActualizarCurp.setText("");
         cmbActualizarTipo.setSelectedIndex(0);
+        txtActualizarInstitucion.setText("");
         usuarioOriginal = "";
         curpOriginal = "";
+        idAsociacionOriginal = 0;
     }
 
     private String obtenerTipoUsuario(JComboBox<String> combo) {
         return combo.getSelectedItem().toString().equals("Donador") ? "donador" : "institucion";
+    }
+
+    private void actualizarVisibilidadInstitucion(JComboBox<String> combo, JLabel etiqueta, JTextField campo) {
+        boolean esInstitucion = "Institucion".equals(combo.getSelectedItem());
+        etiqueta.setVisible(esInstitucion);
+        campo.setVisible(esInstitucion);
+
+        if (!esInstitucion) {
+            campo.setText("");
+        }
+
+        if (campo.getParent() != null) {
+            campo.getParent().revalidate();
+            campo.getParent().repaint();
+        }
     }
 
     private void seleccionarTipoUsuario(JComboBox<String> combo, String tipoUsuario) {
@@ -530,10 +658,13 @@ public class GestionUsuarios extends JPanel {
     }
 
     private void agregarFilaFormulario(JPanel panel, int fila, String texto, JComponent campo) {
+        agregarFilaFormulario(panel, fila, new JLabel(texto), campo);
+    }
+
+    private void agregarFilaFormulario(JPanel panel, int fila, JLabel etiqueta, JComponent campo) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
 
-        JLabel etiqueta = new JLabel(texto);
         etiqueta.setFont(new Font("SansSerif", Font.PLAIN, 14));
         etiqueta.setForeground(new Color(60, 60, 60));
 gbc.gridx = 0;

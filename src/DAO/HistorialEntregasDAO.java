@@ -10,16 +10,21 @@ import javax.swing.table.DefaultTableModel;
 
 public class HistorialEntregasDAO {
 
-    public DefaultTableModel obtenerHistorialEntregas() {
+    /**
+     * Historial de entregas. Si idAsociacion es null se incluyen las de todas las
+     * instituciones; si se especifica, solo el historial de esa institucion.
+     */
+    public DefaultTableModel obtenerHistorialEntregas(Integer idAsociacion) {
         DefaultTableModel modelo = new DefaultTableModel(
                 new String[]{
                     "ID Entrega",
                     "Beneficiario",
-                    "Asociacion",
+                    "Institucion",
                     "Prenda",
-                    "Estado",
+                    "Estado prenda",
                     "Cantidad",
-                    "Fecha entrega"
+                    "Fecha entrega",
+                    "Estado entrega"
                 },
                 0
         ) {
@@ -29,36 +34,49 @@ public class HistorialEntregasDAO {
             }
         };
 
-        String sql = "SELECT es.id_entrega_salida, "
-                   + "b.nombre AS beneficiario, "
-                   + "a.nombre AS asociacion, "
-                   + "p.tipo_prenda, "
-                   + "p.estado_prenda, "
-                   + "ed.cantidad, "
-                   + "es.fecha_entrega "
-                   + "FROM Entrega_Salida es "
-                   + "INNER JOIN Beneficiarios b ON es.id_beneficiario = b.id_beneficiario "
-                   + "INNER JOIN Asociaciones a ON es.id_asociacion = a.id_asociacion "
-                   + "INNER JOIN Entrega_Detalle ed ON es.id_entrega_salida = ed.id_entrega_salida "
-                   + "INNER JOIN Prendas p ON ed.id_prenda = p.id_prenda "
-                   + "ORDER BY es.fecha_entrega DESC";
+        StringBuilder sql = new StringBuilder(
+                "SELECT es.id_entrega_salida, "
+                + "b.nombre AS beneficiario, "
+                + "a.nombre AS asociacion, "
+                + "p.tipo_prenda, "
+                + "p.estado_prenda, "
+                + "ed.cantidad, "
+                + "es.fecha_entrega, "
+                + "es.estado "
+                + "FROM Entrega_Salida es "
+                + "INNER JOIN Beneficiarios b ON es.id_beneficiario = b.id_beneficiario "
+                + "INNER JOIN Asociaciones a ON es.id_asociacion = a.id_asociacion "
+                + "INNER JOIN Entrega_Detalle ed ON es.id_entrega_salida = ed.id_entrega_salida "
+                + "INNER JOIN Prendas p ON ed.id_prenda = p.id_prenda ");
+
+        if (idAsociacion != null) {
+            sql.append("WHERE es.id_asociacion = ? ");
+        }
+
+        sql.append("ORDER BY es.fecha_entrega DESC");
 
         try (Connection con = ConexionBD.conectar();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
-            while (rs.next()) {
-                Date fecha = rs.getDate("fecha_entrega");
+            if (idAsociacion != null) {
+                ps.setInt(1, idAsociacion);
+            }
 
-                modelo.addRow(new Object[]{
-                    rs.getInt("id_entrega_salida"),
-                    rs.getString("beneficiario"),
-                    rs.getString("asociacion"),
-                    rs.getString("tipo_prenda"),
-                    rs.getString("estado_prenda"),
-                    rs.getInt("cantidad"),
-                    fecha == null ? "" : fecha.toString()
-                });
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Date fecha = rs.getDate("fecha_entrega");
+
+                    modelo.addRow(new Object[]{
+                        rs.getInt("id_entrega_salida"),
+                        rs.getString("beneficiario"),
+                        rs.getString("asociacion"),
+                        rs.getString("tipo_prenda"),
+                        rs.getString("estado_prenda"),
+                        rs.getInt("cantidad"),
+                        fecha == null ? "" : fecha.toString(),
+                        rs.getString("estado")
+                    });
+                }
             }
 
         } catch (SQLException e) {

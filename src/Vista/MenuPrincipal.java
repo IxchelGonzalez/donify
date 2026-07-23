@@ -149,7 +149,7 @@ public class MenuPrincipal extends JFrame {
     private boolean tienePermiso(String modulo) {
         String tipo = usuarioSesion.getTipoUsuario().toLowerCase();
 
-        if (tipo.equals("administrador")) {
+        if (tipo.equals("administrador") || tipo.equals("admin")) {
             return true;
         }
 
@@ -158,7 +158,8 @@ public class MenuPrincipal extends JFrame {
         }
 
         if (tipo.equals("donador")) {
-            return modulo.equals(MODULO_REPORTES)
+            return modulo.equals(MODULO_DONACIONES)
+                    || modulo.equals(MODULO_REPORTES)
                     || modulo.equals(MODULO_HISTORIAL)
                     || modulo.equals(MODULO_REPORTE_DONACIONES);
         }
@@ -182,15 +183,15 @@ public class MenuPrincipal extends JFrame {
         } else if (modulo.equals(MODULO_DONACIONES)) {
             panelModulo = new GestionDonaciones();
         } else if (modulo.equals(MODULO_INVENTARIO)) {
-            panelModulo = new ConsultaInventario();
+            panelModulo = new ConsultaInventario(usuarioSesion);
         } else if (modulo.equals(MODULO_ENTREGAS)) {
-            panelModulo = new GestionEntregas();
+            panelModulo = new GestionEntregas(usuarioSesion);
         } else if (modulo.equals(MODULO_HISTORIAL)) {
-            panelModulo = new HistorialEntregas();
+            panelModulo = new HistorialEntregas(usuarioSesion);
         } else if (modulo.equals(MODULO_REPORTE_DONACIONES)) {
-            panelModulo = new ReporteDonacionesRecibidas();
+            panelModulo = new ReporteDonacionesRecibidas(usuarioSesion);
         } else if (modulo.equals(MODULO_REPORTES)) {
-            panelModulo = new GeneracionReportes();
+            panelModulo = new GeneracionReportes(usuarioSesion);
         } 
 
         pestañas.addTab(modulo, panelModulo);

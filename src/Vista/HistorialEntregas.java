@@ -1,6 +1,7 @@
 package Vista;
 
 import DAO.HistorialEntregasDAO;
+import Modelo.Usuario;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -19,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
 public class HistorialEntregas extends JPanel {
 
     private HistorialEntregasDAO historialEntregasDAO;
+    private final Usuario usuarioSesion;
 
     private JLabel lblTitulo;
     private JLabel lblDescripcion;
@@ -28,12 +30,24 @@ public class HistorialEntregas extends JPanel {
     private JButton btnCerrar;
 
     public HistorialEntregas() {
+        this(null);
+    }
+
+    public HistorialEntregas(Usuario usuarioSesion) {
+        this.usuarioSesion = usuarioSesion;
         historialEntregasDAO = new HistorialEntregasDAO();
         configurarPanel();
         crearComponentes();
         agregarComponentes();
         configurarEventos();
         cargarHistorial();
+    }
+
+    private Integer idAsociacionSesion() {
+        boolean esInstitucion = usuarioSesion != null
+                && "institucion".equalsIgnoreCase(usuarioSesion.getTipoUsuario())
+                && usuarioSesion.tieneAsociacion();
+        return esInstitucion ? usuarioSesion.getIdAsociacion() : null;
     }
 
     private void configurarPanel() {
@@ -84,7 +98,7 @@ public class HistorialEntregas extends JPanel {
     }
 
     private void cargarHistorial() {
-        modeloTabla = historialEntregasDAO.obtenerHistorialEntregas();
+        modeloTabla = historialEntregasDAO.obtenerHistorialEntregas(idAsociacionSesion());
         tablaHistorial.setModel(modeloTabla);
     }
 

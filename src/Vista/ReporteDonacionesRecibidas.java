@@ -1,6 +1,7 @@
 package Vista;
 
 import DAO.ReporteDonacionesDAO;
+import Modelo.Usuario;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -19,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
 public class ReporteDonacionesRecibidas extends JPanel {
 
     private ReporteDonacionesDAO reporteDonacionesDAO;
+    private final Usuario usuarioSesion;
 
     private JLabel lblTitulo;
     private JLabel lblDescripcion;
@@ -28,12 +30,24 @@ public class ReporteDonacionesRecibidas extends JPanel {
     private JButton btnCerrar;
 
     public ReporteDonacionesRecibidas() {
+        this(null);
+    }
+
+    public ReporteDonacionesRecibidas(Usuario usuarioSesion) {
+        this.usuarioSesion = usuarioSesion;
         reporteDonacionesDAO = new ReporteDonacionesDAO();
         configurarPanel();
         crearComponentes();
         agregarComponentes();
         configurarEventos();
         cargarReporte();
+    }
+
+    private Integer idAsociacionSesion() {
+        boolean esInstitucion = usuarioSesion != null
+                && "institucion".equalsIgnoreCase(usuarioSesion.getTipoUsuario())
+                && usuarioSesion.tieneAsociacion();
+        return esInstitucion ? usuarioSesion.getIdAsociacion() : null;
     }
 
     private void configurarPanel() {
@@ -84,7 +98,7 @@ public class ReporteDonacionesRecibidas extends JPanel {
     }
 
     private void cargarReporte() {
-        modeloTabla = reporteDonacionesDAO.obtenerReporteDonaciones();
+        modeloTabla = reporteDonacionesDAO.obtenerReporteDonaciones(idAsociacionSesion());
         tablaDonaciones.setModel(modeloTabla);
     }
 

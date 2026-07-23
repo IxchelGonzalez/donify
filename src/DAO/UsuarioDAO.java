@@ -9,7 +9,7 @@ import java.util.List;
 public class UsuarioDAO {
 
     public boolean crearUsuario(Usuario usuario) {
-        String sql = "INSERT INTO Usuarios(usuario, contrasena, curp, tipo_usuario) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Usuarios(usuario, contrasena, curp, tipo_usuario, id_asociacion) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -18,6 +18,12 @@ public class UsuarioDAO {
             ps.setString(2, usuario.getContrasena());
             ps.setString(3, usuario.getCurp());
             ps.setString(4, usuario.getTipoUsuario());
+
+            if (usuario.tieneAsociacion()) {
+                ps.setInt(5, usuario.getIdAsociacion());
+            } else {
+                ps.setNull(5, java.sql.Types.INTEGER);
+            }
 
             return ps.executeUpdate() > 0;
 
@@ -29,7 +35,7 @@ public class UsuarioDAO {
 
     public List<Usuario> obtenerUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT id_usuario, usuario, contrasena, curp, tipo_usuario FROM Usuarios";
+        String sql = "SELECT id_usuario, usuario, contrasena, curp, tipo_usuario, id_asociacion FROM Usuarios";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -41,7 +47,8 @@ public class UsuarioDAO {
                         rs.getString("usuario"),
                         rs.getString("contrasena"),
                         rs.getString("curp"),
-                        rs.getString("tipo_usuario")
+                        rs.getString("tipo_usuario"),
+                        rs.getInt("id_asociacion")
                 ));
             }
 
@@ -53,7 +60,8 @@ public class UsuarioDAO {
     }
 
     public boolean actualizarUsuario(Usuario usuario) {
-        String sql = "UPDATE Usuarios SET usuario = ?, contrasena = ?, curp = ?, tipo_usuario = ? WHERE id_usuario = ?";
+        String sql = "UPDATE Usuarios SET usuario = ?, contrasena = ?, curp = ?, tipo_usuario = ?, "
+                + "id_asociacion = ? WHERE id_usuario = ?";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -62,7 +70,14 @@ public class UsuarioDAO {
             ps.setString(2, usuario.getContrasena());
             ps.setString(3, usuario.getCurp());
             ps.setString(4, usuario.getTipoUsuario());
-            ps.setInt(5, usuario.getIdUsuario());
+
+            if (usuario.tieneAsociacion()) {
+                ps.setInt(5, usuario.getIdAsociacion());
+            } else {
+                ps.setNull(5, java.sql.Types.INTEGER);
+            }
+
+            ps.setInt(6, usuario.getIdUsuario());
 
             return ps.executeUpdate() > 0;
 

@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class LoginDAO {
 
     public Usuario obtenerUsuarioPorCredenciales(String usuario, String contrasena) {
-        String sql = "SELECT id_usuario, usuario, contrasena, curp, tipo_usuario "
+        String sql = "SELECT id_usuario, usuario, contrasena, curp, tipo_usuario, id_asociacion "
                    + "FROM Usuarios WHERE usuario = ? AND contrasena = ?";
 
         try (Connection con = ConexionBD.conectar();
@@ -26,7 +26,8 @@ public class LoginDAO {
                             rs.getString("usuario"),
                             rs.getString("contrasena"),
                             rs.getString("curp"),
-                            rs.getString("tipo_usuario")
+                            rs.getString("tipo_usuario"),
+                            rs.getInt("id_asociacion")
                     );
                 }
             }

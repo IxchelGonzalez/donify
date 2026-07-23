@@ -1,5 +1,6 @@
 package Vista;
 
+import DAO.AsociacionDAO;
 import DAO.UsuarioDAO;
 import Modelo.Usuario;
 import java.awt.*;
@@ -8,22 +9,27 @@ import javax.swing.*;
 public class RegistroUsuario extends JPanel {
 
     private UsuarioDAO usuarioDAO;
+    private AsociacionDAO asociacionDAO;
 
     private JTextField txtUsuario;
     private JPasswordField txtContrasena;
     private JPasswordField txtConfirmarContrasena;
     private JTextField txtCurp;
     private JComboBox<String> cmbTipoUsuario;
+    private JLabel lblNombreInstitucion;
+    private JTextField txtNombreInstitucion;
 
     private JButton btnCrearUsuario;
     private JButton btnCerrar;
 
     public RegistroUsuario() {
         usuarioDAO = new UsuarioDAO();
+        asociacionDAO = new AsociacionDAO();
         configurarPanel();
         crearComponentes();
         agregarComponentes();
         configurarEventos();
+        actualizarVisibilidadInstitucion();
     }
 
     private void configurarPanel() {
@@ -41,6 +47,12 @@ public class RegistroUsuario extends JPanel {
         cmbTipoUsuario = new JComboBox<>(new String[]{"Donador", "Institucion"});
         cmbTipoUsuario.setFont(new Font("SansSerif", Font.PLAIN, 14));
         cmbTipoUsuario.setPreferredSize(new Dimension(280, 35));
+
+        lblNombreInstitucion = new JLabel("Nombre de la institucion");
+        lblNombreInstitucion.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        lblNombreInstitucion.setForeground(new Color(60, 60, 60));
+
+        txtNombreInstitucion = crearCampoTexto();
 
         btnCrearUsuario = crearBoton("Crear usuario", new Color(40, 120, 210), Color.WHITE);
         btnCerrar = crearBoton("Cerrar", new Color(220, 224, 230), new Color(50, 50, 50));
@@ -69,6 +81,7 @@ public class RegistroUsuario extends JPanel {
         agregarFila(formulario, 2, "Confirmar contrasena", txtConfirmarContrasena);
         agregarFila(formulario, 3, "CURP", txtCurp);
         agregarFila(formulario, 4, "Tipo de usuario", cmbTipoUsuario);
+        agregarFila(formulario, 5, lblNombreInstitucion, txtNombreInstitucion);
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 5));
         botones.setBackground(new Color(245, 247, 250));
@@ -83,6 +96,26 @@ public class RegistroUsuario extends JPanel {
     private void configurarEventos() {
         btnCrearUsuario.addActionListener(e -> crearUsuario());
         btnCerrar.addActionListener(e -> cerrarVentana());
+        cmbTipoUsuario.addActionListener(e -> actualizarVisibilidadInstitucion());
+    }
+
+    private void actualizarVisibilidadInstitucion() {
+        boolean esInstitucion = esInstitucionSeleccionada();
+        lblNombreInstitucion.setVisible(esInstitucion);
+        txtNombreInstitucion.setVisible(esInstitucion);
+
+        if (!esInstitucion) {
+            txtNombreInstitucion.setText("");
+        }
+
+        if (txtNombreInstitucion.getParent() != null) {
+            txtNombreInstitucion.getParent().revalidate();
+            txtNombreInstitucion.getParent().repaint();
+        }
+    }
+
+    private boolean esInstitucionSeleccionada() {
+        return "Institucion".equals(cmbTipoUsuario.getSelectedItem());
     }
 
     private void crearUsuario() {
@@ -91,8 +124,14 @@ public class RegistroUsuario extends JPanel {
         String confirmarContrasena = new String(txtConfirmarContrasena.getPassword());
         String curp = txtCurp.getText().trim().toUpperCase();
         String tipoUsuario = obtenerTipoUsuario();
+        String nombreInstitucion = txtNombreInstitucion.getText().trim();
 
         if (!validarCampos(usuario, contrasena, confirmarContrasena, curp)) {
+            return;
+        }
+
+        if (esInstitucionSeleccionada() && nombreInstitucion.isEmpty()) {
+            mostrarAdvertencia("Debe indicar el nombre de la institucion.");
             return;
         }
 
@@ -106,7 +145,23 @@ public class RegistroUsuario extends JPanel {
             return;
         }
 
-        Usuario nuevoUsuario = new Usuario(usuario, contrasena, curp, tipoUsuario);
+        int idAsociacion = 0;
+
+        if (esInstitucionSeleccionada()) {
+            if (asociacionDAO.existeNombreAsociacion(nombreInstitucion)) {
+                mostrarAdvertencia("Ya existe una institucion registrada con ese nombre.");
+                return;
+            }
+
+            idAsociacion = asociacionDAO.crearAsociacion(nombreInstitucion);
+
+            if (idAsociacion == 0) {
+                mostrarError("No se pudo registrar la institucion.");
+                return;
+            }
+        }
+
+        Usuario nuevoUsuario = new Usuario(usuario, contrasena, curp, tipoUsuario, idAsociacion);
 
         if (usuarioDAO.crearUsuario(nuevoUsuario)) {
             JOptionPane.showMessageDialog(
@@ -181,10 +236,13 @@ public class RegistroUsuario extends JPanel {
     }
 
     private void agregarFila(JPanel panel, int fila, String texto, JComponent campo) {
+        agregarFila(panel, fila, new JLabel(texto), campo);
+    }
+
+    private void agregarFila(JPanel panel, int fila, JLabel etiqueta, JComponent campo) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
 
-        JLabel etiqueta = new JLabel(texto);
         etiqueta.setFont(new Font("SansSerif", Font.PLAIN, 14));
         etiqueta.setForeground(new Color(60, 60, 60));
 
