@@ -1,0 +1,160 @@
+CREATE DATABASE IF NOT EXISTS proyectofinaldonify
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+ 
+USE proyectofinaldonify;
+ 
+-- ---------------------------------------------------------------------
+-- Tabla: Asociaciones
+-- Instituciones que reciben donaciones y hacen entregas a beneficiarios.
+-- ---------------------------------------------------------------------
+CREATE TABLE Asociaciones (
+    id_asociacion INT AUTO_INCREMENT PRIMARY KEY,
+    nombre        VARCHAR(150) NOT NULL,
+    ubicacion     VARCHAR(255) NOT NULL DEFAULT '',
+    verificacion  TINYINT(1)   NOT NULL DEFAULT 0,
+    UNIQUE KEY uq_asociaciones_nombre (nombre)
+) ENGINE=InnoDB;
+ 
+-- ---------------------------------------------------------------------
+-- Tabla: Usuarios
+-- Usuarios del sistema: donadores, instituciones y (opcionalmente)
+-- administradores. Si es de tipo "institucion" se liga a Asociaciones.
+-- ---------------------------------------------------------------------
+CREATE TABLE Usuarios (
+    id_usuario     INT AUTO_INCREMENT PRIMARY KEY,
+    usuario        VARCHAR(100) NOT NULL,
+    contrasena     VARCHAR(255) NOT NULL,
+    curp           VARCHAR(18)  NOT NULL,
+    tipo_usuario   VARCHAR(20)  NOT NULL,   -- 'donador', 'institucion', 'admin'
+    id_asociacion  INT NULL,
+    UNIQUE KEY uq_usuarios_usuario (usuario),
+    UNIQUE KEY uq_usuarios_curp (curp),
+    CONSTRAINT fk_usuarios_asociacion
+        FOREIGN KEY (id_asociacion) REFERENCES Asociaciones(id_asociacion)
+        ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE=InnoDB;
+ 
+-- ---------------------------------------------------------------------
+-- Tabla: Beneficiarios
+-- Personas que reciben las prendas donadas.
+-- ---------------------------------------------------------------------
+CREATE TABLE Beneficiarios (
+    id_beneficiario         INT AUTO_INCREMENT PRIMARY KEY,
+    nombre                  VARCHAR(150) NOT NULL,
+    sexo                    VARCHAR(20)  NOT NULL,  -- 'Femenino', 'Masculino', 'Otro'
+    fecha_ultima_recepcion  DATE NULL
+) ENGINE=InnoDB;
+ 
+-- ---------------------------------------------------------------------
+-- Tabla: Prendas
+-- Catalogo de prendas (tipo + estado) con stock general.
+-- ---------------------------------------------------------------------
+CREATE TABLE Prendas (
+    id_prenda      INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_prenda    VARCHAR(100) NOT NULL,
+    estado_prenda  VARCHAR(50)  NOT NULL,
+    stock          INT NOT NULL DEFAULT 0,
+    UNIQUE KEY uq_prendas_tipo_estado (tipo_prenda, estado_prenda)
+) ENGINE=InnoDB;
+ 
+-- ---------------------------------------------------------------------
+-- Tabla: Donadores
+-- Catalogo de donadores con datos de contacto (usado por
+-- DonacionDAO.registrarDonador / obtenerDonadores en Modelo.Donador).
+-- ---------------------------------------------------------------------
+CREATE TABLE Donadores (
+    id_donador  INT AUTO_INCREMENT PRIMARY KEY,
+    nombre      VARCHAR(150) NOT NULL,
+    correo      VARCHAR(150) NULL,
+    telefono    VARCHAR(20)  NULL
+) ENGINE=InnoDB;
+ 
+-- ---------------------------------------------------------------------
+-- Tabla: Donacion_Ingresos
+-- Encabezado de una donacion recibida por una asociacion de un donador.
+-- ---------------------------------------------------------------------
+CREATE TABLE Donacion_Ingresos (
+    id_donacion_ingreso INT AUTO_INCREMENT PRIMARY KEY,
+    id_donador           INT NOT NULL,
+    id_asociacion         INT NOT NULL,
+    fecha_donacion        DATE NOT NULL,
+    CONSTRAINT fk_donacion_ingreso_donador
+        FOREIGN KEY (id_donador) REFERENCES Usuarios(id_usuario)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_donacion_ingreso_asociacion
+        FOREIGN KEY (id_asociacion) REFERENCES Asociaciones(id_asociacion)
+        ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
+ 
+-- ---------------------------------------------------------------------
+-- Tabla: Donacion_Detalle
+-- Detalle (prenda + cantidad) de cada donacion.
+-- ---------------------------------------------------------------------
+CREATE TABLE Donacion_Detalle (
+    id_donacion_detalle  INT AUTO_INCREMENT PRIMARY KEY,
+    id_donacion_ingreso   INT NOT NULL,
+    id_prenda              INT NOT NULL,
+    cantidad               INT NOT NULL,
+    CONSTRAINT fk_donacion_detalle_ingreso
+        FOREIGN KEY (id_donacion_ingreso) REFERENCES Donacion_Ingresos(id_donacion_ingreso)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_donacion_detalle_prenda
+        FOREIGN KEY (id_prenda) REFERENCES Prendas(id_prenda)
+        ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
+ 
+-- ---------------------------------------------------------------------
+-- Tabla: Entrega_Salida
+-- Encabezado de una entrega hecha a un beneficiario por una asociacion.
+-- ---------------------------------------------------------------------
+CREATE TABLE Entrega_Salida (
+    id_entrega_salida  INT AUTO_INCREMENT PRIMARY KEY,
+    id_beneficiario      INT NOT NULL,
+    id_asociacion         INT NOT NULL,
+    fecha_entrega         DATE NOT NULL,
+    estado                VARCHAR(20) NOT NULL DEFAULT 'Pendiente', -- 'Pendiente', 'Entregada'
+    CONSTRAINT fk_entrega_salida_beneficiario
+        FOREIGN KEY (id_beneficiario) REFERENCES Beneficiarios(id_beneficiario)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_entrega_salida_asociacion
+        FOREIGN KEY (id_asociacion) REFERENCES Asociaciones(id_asociacion)
+        ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
+ 
+-- ---------------------------------------------------------------------
+-- Tabla: Entrega_Detalle
+-- Detalle (prenda + cantidad) de cada entrega.
+-- ---------------------------------------------------------------------
+CREATE TABLE Entrega_Detalle (
+    id_entrega_detalle  INT AUTO_INCREMENT PRIMARY KEY,
+    id_entrega_salida     INT NOT NULL,
+    id_prenda              INT NOT NULL,
+    cantidad               INT NOT NULL,
+    CONSTRAINT fk_entrega_detalle_salida
+        FOREIGN KEY (id_entrega_salida) REFERENCES Entrega_Salida(id_entrega_salida)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_entrega_detalle_prenda
+        FOREIGN KEY (id_prenda) REFERENCES Prendas(id_prenda)
+        ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB;
+ 
+-- ---------------------------------------------------------------------
+-- Indices adicionales recomendados (mejoran los JOIN y filtros usados
+-- en los reportes / DAO)
+-- ---------------------------------------------------------------------
+CREATE INDEX idx_usuarios_tipo ON Usuarios(tipo_usuario);
+CREATE INDEX idx_donacion_ingresos_asociacion ON Donacion_Ingresos(id_asociacion);
+CREATE INDEX idx_donacion_ingresos_donador ON Donacion_Ingresos(id_donador);
+CREATE INDEX idx_donacion_detalle_prenda ON Donacion_Detalle(id_prenda);
+CREATE INDEX idx_entrega_salida_asociacion ON Entrega_Salida(id_asociacion);
+CREATE INDEX idx_entrega_salida_beneficiario ON Entrega_Salida(id_beneficiario);
+CREATE INDEX idx_entrega_detalle_prenda ON Entrega_Detalle(id_prenda);
+CREATE INDEX idx_prendas_tipo ON Prendas(tipo_prenda);
+ 
+-- ---------------------------------------------------------------------
+-- (Opcional) Usuario administrador inicial para poder entrar al sistema
+-- la primera vez. Ajusta usuario/contrasena/curp segun necesites.
+-- ---------------------------------------------------------------------
+-- INSERT INTO Usuarios (usuario, contrasena, curp, tipo_usuario, id_asociacion)
+-- VALUES ('admin', 'admin123', 'ADMIN000000HDFXXX01', 'admin', NULL);
