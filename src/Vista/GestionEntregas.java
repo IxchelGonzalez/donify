@@ -273,18 +273,32 @@ public class GestionEntregas extends JPanel {
 
         tablaActualizar.setFillsViewportHeight(true);
 
-        JSplitPane centro = new JSplitPane(
-                JSplitPane.VERTICAL_SPLIT,
-                scrollTablaActualizar,
-                formulario
-        );
+// Permite visualizar todas las filas del formulario,
+// incluyendo ID y Estado, aunque el tamaño de la ventana cambie.
+JScrollPane scrollFormulario = new JScrollPane(formulario);
 
-        centro.setResizeWeight(0.35);
-        centro.setDividerLocation(170);
-        centro.setDividerSize(6);
-        centro.setContinuousLayout(true);
-        centro.setBorder(null);
-        centro.setBackground(new Color(245, 247, 250));
+scrollFormulario.setBorder(null);
+scrollFormulario.setHorizontalScrollBarPolicy(
+        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+);
+scrollFormulario.setVerticalScrollBarPolicy(
+        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+);
+
+scrollFormulario.getVerticalScrollBar().setUnitIncrement(16);
+
+JSplitPane centro = new JSplitPane(
+        JSplitPane.VERTICAL_SPLIT,
+        scrollTablaActualizar,
+        scrollFormulario
+);
+
+centro.setResizeWeight(0.38);
+centro.setDividerLocation(250);
+centro.setDividerSize(6);
+centro.setContinuousLayout(true);
+centro.setBorder(null);
+centro.setBackground(new Color(245, 247, 250));
 
         btnActualizarEntrega = crearBoton("Actualizar entrega", new Color(230, 150, 55), Color.WHITE);
         btnCerrarActualizar = crearBoton("Cerrar", new Color(220, 224, 230), new Color(50, 50, 50));
